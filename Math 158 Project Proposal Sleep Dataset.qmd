@@ -1,0 +1,20 @@
+---
+title: "Math 158 Project Proposal"
+author: Yatziri I. Carmona Ochoa & Yeylin Mendoza
+format: pdf
+editor: visual
+---
+
+## Introduction
+
+### Dataset
+
+### Research Question
+
+## Methods
+
+## Results
+
+## Interpretation, Limitations, and Future Directions
+
+## Conclusion
