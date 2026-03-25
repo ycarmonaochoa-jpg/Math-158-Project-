@@ -3,11 +3,21 @@ title: "Math 158 Project Proposal"
 author: Yatziri I. Carmona Ochoa & Yeylin Mendoza
 format: pdf
 editor: visual
+execute:
+  warning: false
+  message: false
 ---
 
 ## Introduction
 
 ### Dataset
+
+For our project, we will be utilizing the sleep dataset.
+
+```{r}
+library(readr)
+sleep_data <- read_csv("Sleep_health_and_lifestyle_dataset.csv")
+```
 
 ### Research Question
 
