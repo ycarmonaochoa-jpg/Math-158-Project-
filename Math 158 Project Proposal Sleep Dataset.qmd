@@ -8,23 +8,25 @@ execute:
   message: false
 ---
 
-## Introduction
-
-### Dataset
-
-For our project, we will be utilizing the sleep dataset.
+## Introduction 
 
 ```{r}
 library(readr)
 sleep_data <- read_csv("Sleep_health_and_lifestyle_dataset.csv")
 ```
 
-### Research Question
+According to Cleveland clinic, sleep disorders refer to conditions which affect the quality, amount, and timing of a person’s sleep. They also state that over 50 million Americans have them. Therefore, it is important to investigate why so many Americans are affected by this issue. We can do this using the sleep dataset obtained from Kaggle. Our sleep dataset contains the following variables: gender, age, occupation, sleep duration, quality of sleep, physical activity level, stress level, BMI (body mass index) category, blood pressure, heart rate, daily steeps, and sleep disorder. In addition, there are a total of 400 individuals who were part of this study. Our project’s central research question is, “Is there a relationship between sleep disorders and a person’s daily activities and background?”. We suspect there is a relationship given that existing medical literature has shown that BMI, physical activity levels, and stress levels significantly affect an individual’s quality of sleep.
 
 ## Methods
+
+For our project, we will be utilizing the sleep dataset. Given that this dataset includes a lot of background information for each individual, we are interested in predicting sleep quality given various predictor variables such as stress level, physical activity, sleep duration, age, bmi category, etc. To go about this goal, we will first start off with exploratory data analysis. This can take the forms of frequency tables, distribution plots, scatterplots, and correlation matrices. For a sparse linear model, we anticipate comparing its performance to the MLR model using scoring methods such as RMSE and cross-validation error. Lastly, exploring nonlinear relationships for the prediction of sleep quality given an individual’s background is essential because it may be the case that physical activity improves sleep quality initially, but it dips after a certain threshold is achieved. This will be done by smoothing.
+
+For our extension of a method not covered during class, we will be developing a Bayesian network to help predict sleep quality.  It is different in how it focuses on indirect relationships and provides a graphical structure for conditional dependencies. The Bayesian network will be learned using a data-driven algorithm (to be determined) and domain-constraints will be placed so clinical significance can be extracted. To help guide our process in developing a Bayesian network to assess an individual's risk for possessing a sleep disorder, we will conduct some literature review.
 
 ## Results
 
 ## Interpretation, Limitations, and Future Directions
+
+According to the sleep foundation, more than 100 sleeping disorders exist in the medical literature. However, our dataset only covers 2: sleep apnea and insomnia. While these 2 sleeping disorders are among the most common, our dataset does not have a wide range of them, thus this is a limitation.
 
 ## Conclusion
