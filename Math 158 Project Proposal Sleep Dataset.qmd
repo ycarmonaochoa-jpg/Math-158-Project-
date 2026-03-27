@@ -25,6 +25,67 @@ For our extension of a method not covered during class, we will be developing a 
 
 ## Results
 
+### Occupation Distribution among Study Participants
+
+```{r}
+x <- sleep_data$Occupation
+occupation_counts <- table(sleep_data$Occupation)
+occupation_counts
+barplot(occupation_counts,
+        main = "Distribution of Occupations",
+        xlab = "Occupation",
+        ylab = "Count",
+        col = "blue")
+
+```
+
+### Age Distribution of Study Participants
+
+```{r}
+y <- sleep_data$Age
+age_counts <- table(sleep_data$Age)
+age_counts
+barplot(age_counts,
+        main = "Distribution of Age",
+        xlab = "Age",
+        ylab = "Count",
+        col = "red")
+
+```
+
+### Gender Distribution of Study Participants
+
+```{r}
+x <- sleep_data$Gender
+gender_counts <- table(sleep_data$Gender)
+gender_counts
+barplot(gender_counts,
+        main = "Distribution of Gender",
+        xlab = "Gender",
+        ylab = "Count",
+        col = "orange")
+
+```
+
+### BMI Distribution among Study Participants
+
+```{r}
+x <- sleep_data$`BMI Category`
+bmi_counts <- table(sleep_data$`BMI Category`)
+bmi_counts
+barplot(bmi_counts,
+        main = "Distribution of BMI",
+        xlab = "BMI Category",
+        ylab = "Count",
+        col = "yellow")
+
+```
+
+### BMI and Resting Blood Pressure
+
+```{r}
+```
+
 ## Interpretation, Limitations, and Future Directions
 
 According to the sleep foundation, more than 100 sleeping disorders exist in the medical literature. However, our dataset only covers 2: sleep apnea and insomnia. While these 2 sleeping disorders are among the most common, our dataset does not have a wide range of them, thus this is a limitation.
