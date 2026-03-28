@@ -8,20 +8,26 @@ execute:
   message: false
 ---
 
-## Introduction 
+## Introduction
 
 ```{r}
 library(readr)
 sleep_data <- read_csv("Sleep_health_and_lifestyle_dataset.csv")
 ```
 
-According to Cleveland clinic, sleep disorders refer to conditions which affect the quality, amount, and timing of a person’s sleep. They also state that over 50 million Americans have them. Therefore, it is important to investigate why so many Americans are affected by this issue. We can do this using the sleep dataset obtained from Kaggle. Our sleep dataset contains the following variables: gender, age, occupation, sleep duration, quality of sleep, physical activity level, stress level, BMI (body mass index) category, blood pressure, heart rate, daily steeps, and sleep disorder. In addition, there are a total of 400 individuals who were part of this study. Our project’s central research question is, “Is there a relationship between sleep disorders and a person’s daily activities and background?”. We suspect there is a relationship given that existing medical literature has shown that BMI, physical activity levels, and stress levels significantly affect an individual’s quality of sleep.
+Sleep is an essential part of life. It allows the body and brain to rest and recover from daily activities. Sleep is meant to be as simple as closing your eyes, however, it is more complex when evaluating it through the lens of science. Sleeping well has positive outcomes for individuals who get between seven to nine hours of sleep. While this amount of sleep is recommended, it does not apply to everyone. Some people need less, and some people need more depending on the circumstances. However, sleeping less or not enough can lead to serious consequences generally. The consequences can manifest as sleeping disorders, compromising the ability of the body and brain to function properly. Sleep disorders are common, and they affect the health and well-being of those who suffer from one. 
+
+According to Cleveland Clinic, sleep disorders refer to conditions which affect the quality, amount, and timing of a person’s sleep. They also state that over 50 million Americans have them. Therefore, it is important to investigate why so many Americans are affected by this issue. We can do this using the sleep dataset obtained from Kaggle. Our sleep dataset contains the following variables: gender, age, occupation, sleep duration, quality of sleep, physical activity level, stress level, BMI (body mass index) category, blood pressure, heart rate, daily steeps, and sleep disorder. In addition, there are a total of 374 individuals who were part of this study. Our project’s central research questions are, “Is there an association between a person’s background information and risk for developing sleep disorders?”  While this is our primary research goal, for our project draft, we will be investigating the relationship between a person's resting heart rate and their background information until we have the statistical tools to answer the primary question. We suspect there is a relationship though given that existing medical literature has shown that BMI, physical activity levels, and stress levels significantly affect an individual’s quality of sleep and heart rate.
 
 ## Methods
 
-For our project, we will be utilizing the sleep dataset. Given that this dataset includes a lot of background information for each individual, we are interested in predicting sleep quality given various predictor variables such as stress level, physical activity, sleep duration, age, bmi category, etc. To go about this goal, we will first start off with exploratory data analysis. This can take the forms of frequency tables, distribution plots, scatterplots, and correlation matrices. For a sparse linear model, we anticipate comparing its performance to the MLR model using scoring methods such as RMSE and cross-validation error. Lastly, exploring nonlinear relationships for the prediction of sleep quality given an individual’s background is essential because it may be the case that physical activity improves sleep quality initially, but it dips after a certain threshold is achieved. This will be done by smoothing.
+For our project, we will be utilizing the sleep dataset. Given that this dataset includes background information for each individual, we are interested in predicting sleep disorder status given various predictor variables such as stress level, physical activity, sleep duration, age, BMI category, etc. This, however, would require a multinomial regression model given that our response variable, sleep disorder, is categorical. This will be our extension instead. For now though, we will be doing a simple regression analysis of the relationship between heart rate and an individual’s background. To go about this goal, we will first start off with exploratory data analysis. This can take the forms of frequency tables, distribution plots, scatterplots, and correlation matrices. For a sparse linear model, we anticipate comparing its performance to the MLR model using scoring methods such as RMSE and cross-validation error. Lastly, exploring nonlinear relationships for the prediction of sleep quality given an individual’s background is essential because it may be the case that physical activity improves sleep quality initially, but it dips after a certain threshold is achieved. This will be done by smoothing.
 
-For our extension of a method not covered during class, we will be developing a Bayesian network to help predict sleep quality.  It is different in how it focuses on indirect relationships and provides a graphical structure for conditional dependencies. The Bayesian network will be learned using a data-driven algorithm (to be determined) and domain-constraints will be placed so clinical significance can be extracted. To help guide our process in developing a Bayesian network to assess an individual's risk for possessing a sleep disorder, we will conduct some literature review.
+Our hypothesis for this project is that insomnia and sleep apnea will have different predictor variables with greater influence. For instance, we hypothesized that insomnia is linked more so to stress level, sleep duration, and quality of sleep due to these factors going hand in hand with mental health. According to the sleep foundation, 50% of people with insomnia also report having a mental health condition. As for sleep apnea, existing medical literature states that it has a greater correlation with physical health.
+
+### Extension
+
+For our extension of a method not covered during class, we will be developing a multinomial logistic regression model given that we are interested in predicting sleep disorder status. Our hypothesis for this extension is that insomnia and sleep apnea will have different predictor variables with greater influence. For instance, we hypothesize that insomnia is linked more so to stress level, sleep duration, and quality of sleep due to these factors going hand in hand with mental health.. As for sleep apnea, existing medical literature states that it has a greater correlation with physical health. Therefore, perhaps it is more linked to bmi, daily steps, and resting blood pressure.
 
 ## Results
 
@@ -56,7 +62,7 @@ barplot(age_counts,
 ### Gender Distribution of Study Participants
 
 ```{r}
-x <- sleep_data$Gender
+z <- sleep_data$Gender
 gender_counts <- table(sleep_data$Gender)
 gender_counts
 barplot(gender_counts,
@@ -70,7 +76,7 @@ barplot(gender_counts,
 ### BMI Distribution among Study Participants
 
 ```{r}
-x <- sleep_data$`BMI Category`
+j <- sleep_data$`BMI Category`
 bmi_counts <- table(sleep_data$`BMI Category`)
 bmi_counts
 barplot(bmi_counts,
@@ -81,13 +87,87 @@ barplot(bmi_counts,
 
 ```
 
-### BMI and Resting Blood Pressure
+### Sleep Disorder Distribution among Study Participants
 
 ```{r}
+k <- sleep_data$`Sleep Disorder`
+sleep_disorder_counts <- table(sleep_data$`Sleep Disorder`)
+sleep_disorder_counts
+barplot(sleep_disorder_counts,
+        main = "Distribution of Sleep Disorders",
+        xlab = "Sleep Disorder Category",
+        ylab = "Count",
+        col = "green")
 ```
+
+### Sleep Disorder versus Resting Blood Pressure
+
+```{r}
+library(ggplot2)
+
+ggplot(sleep_data, aes(x = `Sleep Disorder`, y = `Heart Rate`)) +
+  #spreads points so they don't overlap
+  geom_jitter(width = 0.2, alpha = 0.5) +
+  labs(title = "Heart Rate vs Sleep Disorder",
+       x = "Sleep Disorder",
+       y = "Heart Rate") +
+  theme_minimal()
+```
+
+Overall, we see that those without a sleep disorder have a lower resting heart rate compared to those who do have a sleeping disorder.
+
+### Simple Linear Regression Model: Resting Heart Rate versus Predictor Variables
+
+```{r}
+#The following variables are categorical so they need to be treated differently
+sleep_data$`BMI Category` <- as.factor(sleep_data$`BMI Category`)
+sleep_data$Occupation <- as.factor(sleep_data$Occupation)
+sleep_data$`Sleep Disorder` <- as.factor(sleep_data$`Sleep Disorder`)
+
+#blood pressure is not necessarily numeric on its own 
+#so we need to split it into systolic and diastolic readings
+bp_split <- strsplit(as.character(sleep_data$`Blood Pressure`), "/")
+sleep_data$Systolic <- as.numeric(sapply(bp_split, `[`, 1))
+sleep_data$Diastolic <- as.numeric(sapply(bp_split, `[`, 2))
+
+#linear regression
+#heart rate versus predictor variables
+model <- lm(`Heart Rate` ~ `BMI Category` + `Sleep Duration` + Occupation + 
+              Systolic + Diastolic + `Sleep Disorder` + 
+              `Quality of Sleep` + `Physical Activity Level` + 
+              `Stress Level` + `Daily Steps` + Age,
+            data = sleep_data)
+
+summary(model)
+plot(model)
+```
+
+#### Fit
+
+Our adjusted R-squared value is 0.907 and it suggests a good overall model fit.
+
+#### F-statistic
+
+Our f-statistic is 159.1 with 23 and 350 degrees of freedom. Also, our p-value is \< 2.2\*e\^-16 which suggests our model has high statistical significance.
+
+#### Predictor Variables
+
+Belonging to the obese bmi category has a high positive influence of resting heart rate given that its slope estimate is approximately 13.51.
+
+#### Residuals versus Fitted Plot
+
+It shows some random scattering which is good, but oddly the majority is concentrated on the left which we should investigate.
+
+#### QQ Plot
+
+Our QQ plot looks good in the middle given that the points follow the diagonal line. However, on the edges the points deviate greatly which is concerning. The points as a whole follow an S-shape so this suggests having some outliers. We will investigate why this happened and try to implement transformations to get those points to follow the diagonal line closer.
 
 ## Interpretation, Limitations, and Future Directions
 
-According to the sleep foundation, more than 100 sleeping disorders exist in the medical literature. However, our dataset only covers 2: sleep apnea and insomnia. While these 2 sleeping disorders are among the most common, our dataset does not have a wide range of them, thus this is a limitation.
+According to the sleep foundation, more than 100 sleeping disorders exist in the medical literature. Yet, our dataset only covers 2: sleep apnea and insomnia. While these 2 sleeping disorders are among the most common, our dataset does not have a wide range of them. This dataset also excludes variables such as income, education levels, blue color jobs, marriage status, number of kids, medical information, ethnic background, and potential genetic predisposition. Additionally, at this stage, we are unsure if the data reported diagnosed sleep disorders or if the participants self-diagnosed. Thus, this analysis should be taken with precaution.  
 
 ## Conclusion
+
+```{r}
+
+```
