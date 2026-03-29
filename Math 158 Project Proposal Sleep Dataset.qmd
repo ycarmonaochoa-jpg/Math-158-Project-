@@ -45,6 +45,8 @@ barplot(occupation_counts,
 
 ```
 
+The distribution above shows a wide range of occupations, however, it is not balanced. Doctors and nurses are the highest participants with 71 and 73, respectively. Engineers are also greater compared to sales representatives. This means that the data is not distributed evenly, and that can lead to variations in the results.
+
 ### Age Distribution of Study Participants
 
 ```{r}
@@ -58,6 +60,8 @@ barplot(age_counts,
         col = "red")
 
 ```
+
+This dataset includes the information of individuals who are between 27 and 59 years old. In this case, based on the type of occupations, the dataset only provides information of people already in the workforce, which does not include students and older people who may experience different sleep or health conditions. Additionally, those who are between 42 and 45 years old are among the top participants in this dataset, with fewer people in their late 20s.
 
 ### Gender Distribution of Study Participants
 
@@ -73,6 +77,8 @@ barplot(gender_counts,
 
 ```
 
+ The gender distribution is more balanced compared to the distributions for occupation and age. The dataset includes 185 females, and 189 males. This means that there is fair representation across genders, which helps minimize bias. Thus, this distribution allows for better comparison between females and males. 
+
 ### BMI Distribution among Study Participants
 
 ```{r}
@@ -87,6 +93,8 @@ barplot(bmi_counts,
 
 ```
 
+As observed above, the majority of the participants fall between “normal” and “overweight” while only a few reported “normal weight” or being “obese.” All categories are important for this analysis as results for our research questions may vary depending on the individual’s BMI. \**Normal weight and normal are possibly the same category which we will feature engineer later*
+
 ### Sleep Disorder Distribution among Study Participants
 
 ```{r}
@@ -100,7 +108,9 @@ barplot(sleep_disorder_counts,
         col = "green")
 ```
 
-### Sleep Disorder versus Resting Blood Pressure
+Sleep disorders are important to understanding how certain individuals function. However, we can observe that this dataset is limited to only two types of disorders: insomnia and sleep apnea. Both seem equally distributed, meaning that around the same number of participants reported having serious sleep conditions. At the same time, we can see that over 200 individuals do not have sleep disorders, which means that more than 50 percent of the participants do not struggle with sleep.
+
+### Resting Heart Rate versus Sleep Disorder Status
 
 ```{r}
 library(ggplot2)
@@ -114,12 +124,12 @@ ggplot(sleep_data, aes(x = `Sleep Disorder`, y = `Heart Rate`)) +
   theme_minimal()
 ```
 
-Overall, we see that those without a sleep disorder have a lower resting heart rate compared to those who do have a sleeping disorder.
+Overall, we see that those without a sleep disorder have a lower resting heart rate compared to those who do have a sleeping disorder. Thus, sleep disorders may be correlated with cardiovascular health, specifically heart rate.
 
 ### Simple Linear Regression Model: Resting Heart Rate versus Predictor Variables
 
 ```{r}
-#The following variables are categorical so they need to be treated differently
+#The following variables are categorical
 sleep_data$`BMI Category` <- as.factor(sleep_data$`BMI Category`)
 sleep_data$Occupation <- as.factor(sleep_data$Occupation)
 sleep_data$`Sleep Disorder` <- as.factor(sleep_data$`Sleep Disorder`)
@@ -142,32 +152,42 @@ summary(model)
 plot(model)
 ```
 
+#### Hypotheses
+
+$H_0: \beta_1 = \beta_2 = \cdots = \beta_j = 0$
+
+-none of the predictors influence heart rate
+
+$H_1: \text{at least one } \beta_j \ne 0$
+
+-at least one of the predictors does influence heart rate
+
 #### Fit
 
-Our adjusted R-squared value is 0.907 and it suggests a good overall model fit.
+Our adjusted R-squared value is 0.907 and it suggests our predictors explain a lot of the variation in our model.
 
 #### F-statistic
 
-Our f-statistic is 159.1 with 23 and 350 degrees of freedom. Also, our p-value is \< 2.2\*e\^-16 which suggests our model has high statistical significance.
+Our f-statistic is large given that it's 159.1 with 23 and 350 degrees of freedom. 23 comes from the number of predictors used in our model and 350 is obtained using n-p-1. Here, n = 374 and p =23. The f-statistic being large is good because our f-statistic is a ratio of 2 variances (between groups and within groups). The within groups variance is bad because its unexplained variance. Also, our p-value is \< 2.2\*e\^-16 which suggests our model has high statistical significance under an established significance level of alpha = 0.05.
 
-#### Predictor Variables
+#### Predictor Variables' Slopes Estimates
 
-Belonging to the obese bmi category has a high positive influence of resting heart rate given that its slope estimate is approximately 13.51.
+Belonging to the obese bmi category has the greatest influence on resting heart rate given that its slope estimate is approximately 13.51. It's also interesting to note that certain occupations do have a significant impact on resting heart rate. Within the occupations, being a scientist and manager increased resting heart rate the most whereas being a sales representative decreased it the most.
 
-#### Residuals versus Fitted Plot
+#### Residuals versus Fitted Plot 
 
-It shows some random scattering which is good, but oddly the majority is concentrated on the left which we should investigate.
+It shows some random scattering which is good, but oddly the majority is concentrated on the left which we should investigate. Also, upon closer look, there is a slight curve pattern starting at the middle which then dips down. This might suggest some nonlinearity which we should also look into.
 
 #### QQ Plot
 
-Our QQ plot looks good in the middle given that the points follow the diagonal line. However, on the edges the points deviate greatly which is concerning. The points as a whole follow an S-shape so this suggests having some outliers. We will investigate why this happened and try to implement transformations to get those points to follow the diagonal line closer.
+Our QQ plot looks good in the middle given that the points follow the diagonal line. However, on the edges the points deviate greatly which is concerning. The points as a whole follow an S-shape so this suggests having some outliers. We will investigate why this happened and try to implement transformations to get those outlier points to follow the diagonal line closer.
 
 ## Interpretation, Limitations, and Future Directions
 
-According to the sleep foundation, more than 100 sleeping disorders exist in the medical literature. Yet, our dataset only covers 2: sleep apnea and insomnia. While these 2 sleeping disorders are among the most common, our dataset does not have a wide range of them. This dataset also excludes variables such as income, education levels, blue color jobs, marriage status, number of kids, medical information, ethnic background, and potential genetic predisposition. Additionally, at this stage, we are unsure if the data reported diagnosed sleep disorders or if the participants self-diagnosed. Thus, this analysis should be taken with precaution.  
+The results show that variables such as BMI, stress level, etc. can help explain the variation in resting heart rate. Our model produced a high adjusted R-Squared with a value of 0.907, however, the plots also show violation of the LINE assumptions.
+
+Additionally, there are some limitations in the dataset that may change the results if accounted for. According to the sleep foundation, more than 100 sleeping disorders exist in the medical literature. Yet, our dataset only covers two: sleep apnea and insomnia. While these two sleeping disorders are among the most common, our dataset does not have a wide range of them. This dataset also excludes variables such as income, education levels, blue color jobs, marriage status, number of kids, medical information, ethnic background, and potential genetic predisposition. At this stage, we are unsure if the data reported diagnosed sleep disorders or if the participants self-diagnosed. As we have categorical data, we would need to extend our analysis and implement a multinomial logistic regression model so that it can help with more accurate predictions. Mitigating these limitations may allow for better comparisons and for more accurate interpretations of the response and explanatory variables. Thus, our analysis at this stage should be interpreted carefully.  
 
 ## Conclusion
 
-```{r}
-
-```
+Our investigation so far shows that resting heart rate is indeed associated with an individual’s background information. We came to this conclusion because our model produced a high adjusted R-squared value, 0.907, a large F-statistic, 159 with 23 and 350 degrees of freedom, and an incredibly tiny p-value. Our findings, therefore, suggest a good overall model fit, but given the some of the limitations and violations of the LINE assumptions, they should be interpreted with caution. Despite that, this analysis shows the importance of understanding how an individual's sleeping habits and lifestyle can influence cardiovascular health, in this case, resting heart rate.
