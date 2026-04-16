@@ -174,13 +174,60 @@ Our f-statistic is large given that it's 159.1 with 23 and 350 degrees of freedo
 
 Belonging to the obese bmi category has the greatest influence on resting heart rate given that its slope estimate is approximately 13.51. It's also interesting to note that certain occupations do have a significant impact on resting heart rate. Within the occupations, being a scientist and manager increased resting heart rate the most whereas being a sales representative decreased it the most.
 
-#### Residuals versus Fitted Plot 
+#### Residuals versus Fitted Plot
 
 It shows some random scattering which is good, but oddly the majority is concentrated on the left which we should investigate. Also, upon closer look, there is a slight curve pattern starting at the middle which then dips down. This might suggest some nonlinearity which we should also look into.
 
 #### QQ Plot
 
 Our QQ plot looks good in the middle given that the points follow the diagonal line. However, on the edges the points deviate greatly which is concerning. The points as a whole follow an S-shape so this suggests having some outliers. We will investigate why this happened and try to implement transformations to get those outlier points to follow the diagonal line closer.
+
+### Multinomial Linear Regression
+
+```{r}
+library(nnet)
+#multinomial logistic regression function
+#making sure outcome is a factor
+sleep_data$`Sleep Disorder` <- factor(sleep_data$`Sleep Disorder`,
+                                     levels = c("None", "Insomnia", "Sleep Apnea"))
+#fitting our multinomial logistic regression
+sleep_disorder_model <- multinom(`Sleep Disorder` ~ 
+                    Age + Gender + Occupation +
+                    `Sleep Duration` + `Quality of Sleep` +
+                    `Physical Activity Level` + `Stress Level` +
+                    `BMI Category` + Systolic + Diastolic +
+                    `Heart Rate` + `Daily Steps`,
+                  data = sleep_data)
+summary(sleep_disorder_model)
+
+```
+
+```{r}
+#p-values
+#z-score
+z <- summary(sleep_disorder_model)$coefficients / summary(sleep_disorder_model)$standard.errors
+#2-sided hypothesis testing
+#checking is estimate is not 0
+p_values <- 2 * (1 - pnorm(abs(z)))
+p_values
+```
+
+```{r}
+library(broom)
+library(ggplot2)
+
+#one row for each coefficient
+coef_df <- tidy(sleep_disorder_model)
+
+ggplot
+
+ggplot(coef_df, aes(x = estimate, y = term, color = y.level)) +
+  geom_point() +
+  labs(title = "Model Coefficients",
+       x = "Estimate",
+       y = "Predictor")
+
+```
 
 ## Interpretation, Limitations, and Future Directions
 
