@@ -182,7 +182,7 @@ It shows some random scattering which is good, but oddly the majority is concent
 
 Our QQ plot looks good in the middle given that the points follow the diagonal line. However, on the edges the points deviate greatly which is concerning. The points as a whole follow an S-shape so this suggests having some outliers. We will investigate why this happened and try to implement transformations to get those outlier points to follow the diagonal line closer.
 
-### Multinomial Linear Regression
+### Multinomial Logistic Regression
 
 ```{r}
 library(nnet)
