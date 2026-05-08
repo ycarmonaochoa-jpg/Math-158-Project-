@@ -12,8 +12,8 @@ execute:
 
 ```{r}
 library(readr)
-View(sleep_data)
 sleep_data <- read_csv("Sleep_health_and_lifestyle_dataset.csv")
+sleep_data
 ```
 
 Sleep is an essential part of life. It allows the body and brain to rest and recover from daily activities. Sleep is meant to be as simple as closing your eyes, however, it is more complex when evaluating it through the lens of science. Sleeping well has positive outcomes for individuals who get between seven to nine hours of sleep. While this amount of sleep is recommended, it does not apply to everyone. Some people need less, and some people need more depending on the circumstances. However, sleeping less or not enough can lead to serious consequences generally. The consequences can manifest as sleeping disorders, compromising the ability of the body and brain to function properly. Sleep disorders are common, and they affect the health and well-being of those who suffer from one. 
@@ -116,7 +116,7 @@ Sleep disorders are important to understanding how certain individuals function.
 ```{r}
 library(ggplot2)
 
-ggplot(sleep_data, aes(x = `Sleep Disorder`, y = `Heart Rate`)) +
+ggplot(sleep_data, aes(x = `Sleep Disorder`, y = `Heart Rate`, color = `Sleep Disorder`)) +
   #spreads points so they don't overlap
   geom_jitter(width = 0.2, alpha = 0.5) +
   labs(title = "Heart Rate vs Sleep Disorder",
@@ -127,7 +127,7 @@ ggplot(sleep_data, aes(x = `Sleep Disorder`, y = `Heart Rate`)) +
 
 Overall, we see that those without a sleep disorder have a lower resting heart rate compared to those who do have a sleeping disorder. Thus, sleep disorders may be correlated with cardiovascular health, specifically heart rate.
 
-### Simple Linear Regression Model: Resting Heart Rate versus Predictor Variables
+### Multiple Linear Regression Model: Resting Heart Rate versus Predictor Variables
 
 ```{r}
 #The following variables are categorical
@@ -182,6 +182,142 @@ It shows some random scattering which is good, but oddly the majority is concent
 #### QQ Plot
 
 Our QQ plot looks good in the middle given that the points follow the diagonal line. However, on the edges the points deviate greatly which is concerning. The points as a whole follow an S-shape so this suggests having some outliers. We will investigate why this happened and try to implement transformations to get those outlier points to follow the diagonal line closer.
+
+### Lasso 
+
+Lasso for overall model that doesn't distinguish by sleep disorder.
+
+```{r}
+library(glmnet)
+library(caret)
+
+#converting categorical variables to factors
+sleep_data$`BMI Category` <- as.factor(sleep_data$`BMI Category`)
+sleep_data$Occupation <- as.factor(sleep_data$Occupation)
+sleep_data$`Sleep Disorder` <- as.factor(sleep_data$`Sleep Disorder`)
+
+#conversion from before
+bp_split <- strsplit(as.character(sleep_data$`Blood Pressure`), "/")
+sleep_data$Systolic <- as.numeric(sapply(bp_split, `[`, 1))
+sleep_data$Diastolic <- as.numeric(sapply(bp_split, `[`, 2))
+
+#predictor matrix
+x <- model.matrix(
+  `Heart Rate` ~
+    `BMI Category` +
+    `Sleep Duration` +
+    Occupation +
+    Systolic +
+    Diastolic +
+    `Sleep Disorder` +
+    `Quality of Sleep` +
+    `Physical Activity Level` +
+    `Stress Level` +
+    `Daily Steps` +
+    Age,
+  data = sleep_data
+)[,-1]
+#response
+y <- sleep_data$`Heart Rate`
+
+#cv lasso
+set.seed(123)
+cv_lasso <- cv.glmnet(
+  x,
+  y,
+  alpha = 1,      # alpha = 1 means LASSO
+  nfolds = 10
+)
+
+#cv error
+plot(cv_lasso)
+
+#lambda with lowest cv error
+cv_lasso$lambda.min
+
+#final lasso model
+lasso_model <- glmnet(
+  x,
+  y,
+  alpha = 1,
+  lambda = cv_lasso$lambda.min
+)
+
+coef(lasso_model)
+
+```
+
+We also did lasso divided by sleep disorder. This is important because we suspect that sleep apnea and insomnia have different predictors.
+
+```{r}
+#divide data by status
+apnea_data <- subset(
+  sleep_data,
+  `Sleep Disorder` == "Sleep Apnea"
+)
+insomnia_data <- subset(
+  sleep_data,
+  `Sleep Disorder` == "Insomnia"
+)
+
+none_data <- subset(
+  sleep_data,
+  `Sleep Disorder` == "None"
+)
+
+#run models on data subsets
+run_lasso <- function(data_subset){
+  x <- model.matrix(
+    `Heart Rate` ~
+      `BMI Category` +
+      `Sleep Duration` +
+      Occupation +
+      Systolic +
+      Diastolic +
+      `Quality of Sleep` +
+      `Physical Activity Level` +
+      `Stress Level` +
+      `Daily Steps` +
+      Age,
+    data = data_subset
+  )[,-1]
+
+#response
+y <- data_subset$`Heart Rate`
+
+#cv
+cv_fit <- cv.glmnet(
+    x,
+    y,
+    alpha = 1,
+    nfolds = 10
+  )
+
+#final model, lambda selection for penalty strength
+final_model <- glmnet(
+    x,
+    y,
+    alpha = 1,
+    lambda = cv_fit$lambda.min
+  )
+
+return(list(
+    cv = cv_fit,
+    model = final_model
+  ))
+}
+
+#3 models
+apnea_lasso <- run_lasso(apnea_data)
+insomnia_lasso <- run_lasso(insomnia_data)
+none_lasso <- run_lasso(none_data)
+coef(apnea_lasso$model)
+coef(insomnia_lasso$model)
+coef(none_lasso$model)
+plot(apnea_lasso$cv)
+plot(insomnia_lasso$cv)
+plot(none_lasso$cv)
+```
 
 ### Multinomial Logistic Regression
 
